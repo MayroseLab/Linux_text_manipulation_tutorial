@@ -1,5 +1,5 @@
 # Linux text manipulation tutorial
-This repo contains a short tutorial about text manipulation using the Linux command line.  
+This repo contains a short tutorial about text manipulation using the Linux command line. Note that the tutorial does not attempt to be throrough or deep - it's just meant to be a nice introduction and demonstrate what one can do when they master the Linux command line.  
 We will work with a data set of Zebrafish (_Danio rerio_) CRISPR/CAS9 annealing sites, accessible [here](https://research.nhgri.nih.gov/manuscripts/Burgess/zebrafish/download.shtml).
 ## Getting started
 First, create a directory for the tutorail:
@@ -34,4 +34,27 @@ chr1    5962    5982    CTATCGAGAGGCATTACTGA_1132       208.532 -
 chr1    5965    5985    GTAATGCCTCTCGATAGCTG_166        907.262 +
 chr1    5974    5994    CGCACACCGCAGCTATCGAG_134        938.906 -
 ```
-As you can see, this is a [BED](https://m.ensembl.org/info/website/upload/bed.html) file
+As you can see, this is a [BED](https://m.ensembl.org/info/website/upload/bed.html) file, which is basically a tab-separated values (TSV) file with genomic coordinates. The columns are:
+* Chromosome
+* Start position (1-based)
+* End position (Inclusive)
+* \<Target sequence\>_\<number of off-targets\>
+* Score representing specificity
+* Strand (+/-)
+## Getting the list of chromosomes
+Let's begin by making sure that the BED and FASTA files match in terms of the chromosome names they contain. To do that, we'll extract the list of chromosomes from each file.  
+Fo the FASTA, we can do that using:
+```
+$ grep '>' Danio_rerio.GRCz11.dna.toplevel.fa
+```
+The `grep` command allows us to fetch lines matching a certain pattern from a file - in this case we look for ">", which indicates record headers in a FASTA file. If we only want the REF chromosomes (names ending with "REF"), we can use a regex pattern:
+```
+grep '>*REF$' Danio_rerio.GRCz11.dna.toplevel.fa
+```
+One other trick we can use `grep` for is to get the total genome size:
+```
+$ grep -v '>' Danio_rerio.GRCz11.dna.toplevel.fa | tr -d '\n' | wc
+```
+**Explanation**: `grep -v'` means "fetch lines **not** matching the pattern", so in this case this would be all sequence lines. We then **pipe** the result into another command, `tr -d '\n'`, which removes all the "newline" characters, and finally pipe the result again to `wc`, which counts the number of letters.  
+Piping is a very useful feature in text manipulation, and we'll use it a lot in this tutorial. You can also pipe results into `less` if you want to view them - useful for checking large intermediate results. E.g.: `grep -v '>' Danio_rerio.GRCz11.dna.toplevel.fa | less`.
+
