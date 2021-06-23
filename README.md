@@ -58,3 +58,18 @@ $ grep -v '>' Danio_rerio.GRCz11.dna.toplevel.fa | tr -d '\n' | wc
 **Explanation**: `grep -v'` means "fetch lines **not** matching the pattern", so in this case this would be all sequence lines. We then **pipe** the result into another command, `tr -d '\n'`, which removes all the "newline" characters, and finally pipe the result again to `wc`, which counts the number of letters.  
 Piping is a very useful feature in text manipulation, and we'll use it a lot in this tutorial. You can also pipe results into `less` if you want to view them - useful for checking large intermediate results. E.g.: `grep -v '>' Danio_rerio.GRCz11.dna.toplevel.fa | less`.
 
+Now let's get the chromosomes list from the BED file. This can be done with:
+```
+$ cut -f1 danRer11.CRISPR.bed | sort | uniq
+```
+**Explanation**: `cut -f1` prints only the first column of the file (the chromosome). We only want unique (distinct) values, so we use the command `uniq`, however, this command only works for sorted data, so we must use `sort` first.  
+Looks like the same chromosomes are present, but with slightly different naming. We'll take care of this later.  
+We can also count how many targets are listed per chromosome with a very similar command:
+```
+$ cut -f1 danRer11.CRISPR.bed | sort | uniq -c
+```
+We can even sort the output by number of targets, like this:
+```
+$ cut -f1 danRer11.CRISPR.bed | sort | uniq -c | sort -k1 -n
+```
+**Explanation**: `sort -k1` means "sort by first column". `-n` tells the command to sort by numeric value rather than alphabetically.
