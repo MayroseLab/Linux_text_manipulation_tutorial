@@ -73,3 +73,7 @@ We can even sort the output by number of targets, like this:
 $ cut -f1 danRer11.CRISPR.bed | sort | uniq -c | sort -k1 -n
 ```
 **Explanation**: `sort -k1` means "sort by first column". `-n` tells the command to sort by numeric value rather than alphabetically.
+
+## Querying tabular data with `awk`
+`awk` is a nice command line tool for working with tables. Let's see what it can do.  
+Suppose we want to extract CRISPR targets in a certain range of genomic coordinates, e.g. chr1:1000000-2000000.
