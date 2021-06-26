@@ -292,3 +292,16 @@ Another common case in which for loops are used is when looping over files. For 
 $ for bed in $(ls chromosomes/*.bed); do echo $bed; sed -i 's/\([ATGCN]*\)_\([0-9]*\)/\1\t\2/' $bed; done
 ```
 **Explanation**: we loop over the result of `ls chromosomes/*.bed` and apply the `sed` command to break the sequence column. We used the `-i` flag to modify the files in-place.
+
+## Challenge
+Write a command that will take the output of `qstat` and print for each job the job number, full job name, and node on which it's running. Something like this:
+```
+2178519.power8  Chimera_ORF6_75_Artery_Tibial.sh        compute-0-92/12
+```
+<details>
+<summary>Click here to see the solution</summary>
+  
+```
+for j in $(qstat | awk '{print $1}'); do name=$(qstat -f $j | grep 'Job_Name = ' | sed 's/    Job_Name = //'); node=$(qstat -f $j | grep 'exec_host = ' | sed 's/    exec_host = //'); echo -e "$j\t$name\t$node"; done
+```  
+</details>
