@@ -76,4 +76,12 @@ $ cut -f1 danRer11.CRISPR.bed | sort | uniq -c | sort -k1 -n
 
 ## Querying tabular data with `awk`
 `awk` is a nice command line tool for working with tables. Let's see what it can do.  
-Suppose we want to extract CRISPR targets in a certain range of genomic coordinates, e.g. chr1:1000000-2000000.
+Suppose we want to extract CRISPR targets in a certain range of genomic coordinates, e.g. chr1:1000000-2000000. We can do it using:
+```
+awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000' danRer11.CRISPR.bed | less
+```
+**Explanation**: $1 referes to the first column, $2 is the second etc. We can use any combination of boolean operators: `&&, ||, !, ()`...
+We can also decide to print only specific fields using `{print $x}`. For example the following oneliner will count how many targets we have on the + and - strands in the above range:
+```
+awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000 {print $6}' danRer11.CRISPR.bed | sort | uniq -c
+```
