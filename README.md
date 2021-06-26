@@ -158,4 +158,4 @@ chr1    5962    5982    CTATCGAGAGGCATTACTGA    1132    208.532 -
 chr1    5965    5985    GTAATGCCTCTCGATAGCTG    166     907.262 +
 chr1    5974    5994    CGCACACCGCAGCTATCGAG    134     938.906 -
 ```
-**Explanation**: we use `\(\)` for indicating that we want to capture a part of the pattern, in this case, the sequence and the number (separately). Within the replace value, we use \1 to indicate the first captured value, \2 to indicate the second, and so on.
+**Explanation**: we use `\(<something>\)` for indicating that we want to capture a part of the pattern, in this case, the sequence and the number (separately). Within the replace value, we use \1 to indicate the first captured value, \2 to indicate the second, and so on.
