@@ -99,9 +99,63 @@ chr1:5962-5982(-)       208.532
 chr1:5965-5985(+)       907.262
 chr1:5974-5994(-)       938.906
 ```
+Of course you can always redirect the output to a new file using '>': `awk '{print $1":"$2"-"$3"("$6")""\t"$5}' danRer11.CRISPR.bed > danRer11.CRISPR.tsv`.
+
 Finally, we can use `awk` for summing numbers. For example, let's calculate the mean score (column 5) in a given range:
 ```
 $ awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000 {SUM+=$5; i+=1}END{print SUM/i}' danRer11.CRISPR.bed
 555.81
 ```
 **Explanation**: the first part (`$1 == "chr1" && $2 >= 100000 && $3 <= 200000`) just filters for the range of interest. `SUM` and `i` are variables - in `awk` there is no need to declare or initialize them, they just start from 0. For each row, we add the score ($5) to `SUM`, and also increment `i` by 1. At the end (`END`) - we print `SUM/i`.
+
+## Substitutions using `sed`
+`sed` is another great tool for manipulating text files (or "streams"). One nice feature is text substitution. The syntax is:
+```
+sed 's/<pattern>/<replace>/'
+```
+or:
+```
+sed 's/<pattern>/<replace>/**g**'
+```
+to replace multiple occurrences of the pattern in the same line.  
+The pattern may be a simple text string. For example, the following command will remove the letters "chr" from each line, which will help us matching chromosome names to those found in the FASTA file:
+```
+$ sed 's/chr//' danRer11.CRISPR.bed | head
+1       1107    1127    GTAGATGAGAGGTCACCGGC_553        513.21  -
+1       1111    1131    AGCTGTAGATGAGAGGTCAC_350        706.302 -
+1       1234    1254    GGAAAAATAACCTCCAAACC_436        618.853 -
+1       4188    4208    GTAATAATCTCAGTTTATCG_292        769.012 +
+1       4316    4336    GTAGTTGCCAGAATCACTAA_1138       206.765 +
+1       5007    5027    AGATAAGTTACTTATAATCG_229        838.946 -
+1       5962    5982    CTATCGAGAGGCATTACTGA_1132       208.532 -
+1       5965    5985    GTAATGCCTCTCGATAGCTG_166        907.262 +
+1       5974    5994    CGCACACCGCAGCTATCGAG_134        938.906 -
+```
+**Explanation**: we simply replace "chr" with "" (empty string.  
+The pattern may also be a REGEX, using a specific [dialect](https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html). As an example, let's get rid of the sequence in column 4:
+```
+$ sed 's/[ATGCN]*_//' danRer11.CRISPR.bed | head
+chr1    1107    1127    553     513.21  -
+chr1    1111    1131    350     706.302 -
+chr1    1234    1254    436     618.853 -
+chr1    4188    4208    292     769.012 +
+chr1    4316    4336    1138    206.765 +
+chr1    5007    5027    229     838.946 -
+chr1    5962    5982    1132    208.532 -
+chr1    5965    5985    166     907.262 +
+chr1    5974    5994    134     938.906 -
+```
+We can even capture parts of the pattern and use them in the replacement value. Let's use this to separate the sequence from the number of off-targets, so instead of `GTAGATGAGAGGTCACCGGC_553` we'll get `GTAGATGAGAGGTCACCGGC  553`. This can be done like this:
+```
+$ sed 's/\([ATGCN]*\)_\([0-9]*\)/\1\t\2/' danRer11.CRISPR.bed | head
+chr1    1107    1127    GTAGATGAGAGGTCACCGGC    553     513.21  -
+chr1    1111    1131    AGCTGTAGATGAGAGGTCAC    350     706.302 -
+chr1    1234    1254    GGAAAAATAACCTCCAAACC    436     618.853 -
+chr1    4188    4208    GTAATAATCTCAGTTTATCG    292     769.012 +
+chr1    4316    4336    GTAGTTGCCAGAATCACTAA    1138    206.765 +
+chr1    5007    5027    AGATAAGTTACTTATAATCG    229     838.946 -
+chr1    5962    5982    CTATCGAGAGGCATTACTGA    1132    208.532 -
+chr1    5965    5985    GTAATGCCTCTCGATAGCTG    166     907.262 +
+chr1    5974    5994    CGCACACCGCAGCTATCGAG    134     938.906 -
+```
+**Explanation**: we use `\(\)` for indicating that we want to capture a part of the pattern, in this case, the sequence and the number (separately). Within the replace value, we use \1 to indicate the first captured value, \2 to indicate the second, and so on.
