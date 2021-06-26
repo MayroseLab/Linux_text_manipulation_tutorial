@@ -158,4 +158,36 @@ chr1    5962    5982    CTATCGAGAGGCATTACTGA    1132    208.532 -
 chr1    5965    5985    GTAATGCCTCTCGATAGCTG    166     907.262 +
 chr1    5974    5994    CGCACACCGCAGCTATCGAG    134     938.906 -
 ```
-**Explanation**: we use `\(<something>\)` for indicating that we want to capture a part of the pattern, in this case, the sequence and the number (separately). Within the replace value, we use \1 to indicate the first captured value, \2 to indicate the second, and so on.
+**Explanation**: we use `\(<something>\)` for indicating that we want to capture a part of the pattern, in this case, the sequence and the number (separately). Within the replace value, we use \1 to indicate the first captured value, \2 to indicate the second, and so on.  
+
+**sed tip**: sometimes you find yourself in a situation where you need to replace Linux paths, which contain the character '/'. This may confuse `sed`, since we used '/' as part of the the command syntax. Turns out you can actually use any character instead, e.g.:
+```
+$ echo '/path/to/myFile.txt' | sed 's@/to/@/to/new/@'
+/path/to/new/myFile.txt
+```
+
+## Using `sed` to extract line ranges
+Another useful feature of the `sed` tool is its ability to fetch certain ranges of lines.  
+Recall that we can use `head` to get the first lines of a file, e.g.:
+```
+$ head -100 danRer11.CRISPR.bed
+```
+will print the first 100 lines. The same can be achieved using `sed`:
+```
+$ sed -n '1,100p;100q' danRer11.CRISPR.bed
+```
+**Explanation**: we tell `sed` to print (p) lines 1-100, and then, at line 100, quit (q).  
+Of course, we can do the same with any range of line numbers, e.g.:
+```
+$ sed -n '10000,20000p;20000q' danRer11.CRISPR.bed
+```
+We can even tell `sed` to only print every n-th line. Let's use that to sample 100k targets from the line range 1,000,000-2,000,000:
+```
+$ sed -n '1000000~10p;2000000q' danRer11.CRISPR.bed | less
+```
+**Explanation**: we tell `sed` to start at line 1000000, then print every 10th line, and quit at line 2000000.  
+
+Two more useful `sed` tricks:
+* To combine several `sed` commands, use `-e`: `sed -e 's@_@/@' -e 's/chr//' danRer11.CRISPR.bed | less`
+* To modify a file in-place, use `sed -i` (but be careful - it's irreverssible).
+
