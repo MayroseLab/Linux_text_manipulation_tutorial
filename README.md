@@ -74,14 +74,34 @@ $ cut -f1 danRer11.CRISPR.bed | sort | uniq -c | sort -k1 -n
 ```
 **Explanation**: `sort -k1` means "sort by first column". `-n` tells the command to sort by numeric value rather than alphabetically.
 
-## Querying tabular data with `awk`
+## Using `awk` for working with tabular data
 `awk` is a nice command line tool for working with tables. Let's see what it can do.  
 Suppose we want to extract CRISPR targets in a certain range of genomic coordinates, e.g. chr1:1000000-2000000. We can do it using:
 ```
-awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000' danRer11.CRISPR.bed | less
+$ awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000' danRer11.CRISPR.bed | less
 ```
 **Explanation**: $1 referes to the first column, $2 is the second etc. We can use any combination of boolean operators: `&&, ||, !, ()`...
 We can also decide to print only specific fields using `{print $x}`. For example the following oneliner will count how many targets we have on the + and - strands in the above range:
 ```
-awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000 {print $6}' danRer11.CRISPR.bed | sort | uniq -c
+$ awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000 {print $6}' danRer11.CRISPR.bed | sort | uniq -c
 ```
+
+`awk` is also very useful for reformating text files. E.g.:
+```
+$ awk '{print $1":"$2"-"$3"("$6")""\t"$5}' danRer11.CRISPR.bed | head
+chr1:1107-1127(-)       513.21
+chr1:1111-1131(-)       706.302
+chr1:1234-1254(-)       618.853
+chr1:4188-4208(+)       769.012
+chr1:4316-4336(+)       206.765
+chr1:5007-5027(-)       838.946
+chr1:5962-5982(-)       208.532
+chr1:5965-5985(+)       907.262
+chr1:5974-5994(-)       938.906
+```
+Finally, we can use `awk` for summing numbers. For example, let's calculate the mean score (column 5) in a given range:
+```
+$ awk '$1 == "chr1" && $2 >= 100000 && $3 <= 200000 {SUM+=$5; i+=1}END{print SUM/i}' danRer11.CRISPR.bed
+555.81
+```
+**Explanation**: the first part (`$1 == "chr1" && $2 >= 100000 && $3 <= 200000`) just filters for the range of interest. `SUM` and `i` are variables - in `awk` there is no need to declare or initialize them, they just start from 0. For each row, we add the score ($5) to `SUM`, and also increment `i` by 1. At the end (`END`) - we print `SUM/i`.
