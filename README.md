@@ -1,5 +1,5 @@
 # Linux text manipulation tutorial
-This repo contains a short tutorial about text manipulation using the Linux command line. Note that the tutorial does not attempt to be throrough or deep - it's just meant to be a nice introduction and demonstrate what one can do when they master the Linux command line.  
+This repo contains a short tutorial about text manipulation using the Linux command line. Note that the tutorial does not attempt to be throrough or deep - it's just meant to be a nice introduction and demonstrate what one can do when they master the Linux command line. Also, if this is the first time you encounter the Linux command line, it might not be a great place to start.  
 We will work with a data set of Zebrafish (_Danio rerio_) CRISPR/CAS9 annealing sites, accessible [here](https://research.nhgri.nih.gov/manuscripts/Burgess/zebrafish/download.shtml).
 ## Getting started
 First, create a directory for the tutorail:
@@ -191,3 +191,104 @@ Two more useful `sed` tricks:
 * To combine several `sed` commands, use `-e`: `sed -e 's@_@/@' -e 's/chr//' danRer11.CRISPR.bed | less`
 * To modify a file in-place, use `sed -i` (but be careful - it's irreverssible).
 
+## Bash for loops
+For loops can be run on the command line with the following syntax:
+```
+for <variable name> in <something iterable>; do <some command>; <some other command>; ...; done
+```
+Let's demonstrate the use of for loops by splitting the BED file into multiple files, each containing targets from one chromosome. We'll build the command gradually. Before we begin, let's create a directory to store all the files we'll create: `mkdir chromosomes`. Next:
+```
+$ for chr in $(seq 1 25); do echo $chr; done
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+```
+**Explanation**: we call the variable `chr`, and it gets its values by iterating over the result of `seq 1 25`. We then tell bash to simply print (`echo`) the value of `chr` (note the use of `$chr` when referring to the variable).  
+Now we'll define the output file name for each chromosome:
+```
+$ for chr in $(seq 1 25); do echo $chr; fileName="chromosomes/$chr.bed"; echo $fileName; done
+1
+chromosomes/1.bed
+2
+chromosomes/2.bed
+3
+chromosomes/3.bed
+4
+chromosomes/4.bed
+5
+chromosomes/5.bed
+6
+chromosomes/6.bed
+7
+chromosomes/7.bed
+8
+chromosomes/8.bed
+9
+chromosomes/9.bed
+10
+chromosomes/10.bed
+11
+chromosomes/11.bed
+12
+chromosomes/12.bed
+13
+chromosomes/13.bed
+14
+chromosomes/14.bed
+15
+chromosomes/15.bed
+16
+chromosomes/16.bed
+17
+chromosomes/17.bed
+18
+chromosomes/18.bed
+19
+chromosomes/19.bed
+20
+chromosomes/20.bed
+21
+chromosomes/21.bed
+22
+chromosomes/22.bed
+23
+chromosomes/23.bed
+24
+chromosomes/24.bed
+25
+chromosomes/25.bed
+```
+**Explanation**: nothing fancy here - we simply defined another variable `fileName` and print it to the screen to make sure it's what we expect.  
+Finally:
+```
+for chr in $(seq 1 25); do echo $chr; fileName="chromosomes/$chr.bed"; echo $fileName; awk -v chr=$chr '$1 == "chr"chr' danRer11.CRISPR.bed > $fileName; done
+```
+**Explanation**: the loop starts the same way as before, but we add an `awk` command that performs the actual printing to files: `awk -v chr=$chr '$1 == "chr"chr' danRer11.CRISPR.bed > $fileName`. `-v chr=$chr` defines a variable `chr` that we can use within `awk`. We tell it to take its value from the bash variable `$chr`. The rest is just a simple filtration using the value of `chr`, and the output is redirected to `$fileName`. Mission accomplished!  
+
+Another common case in which for loops are used is when looping over files. For example, let's modify each bed file under `chromosomes/` using a `sed` command we've already seen:
+```
+$ for bed in $(ls chromosomes/*.bed); do echo $bed; sed -i 's/\([ATGCN]*\)_\([0-9]*\)/\1\t\2/' $bed; done
+```
+**Explanation**: we loop over the result of `ls chromosomes/*.bed` and apply the `sed` command to break the sequence column. We used the `-i` flag to modify the files in-place.
