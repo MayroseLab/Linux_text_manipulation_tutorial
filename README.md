@@ -13,7 +13,7 @@ To download and unzip the data for the tutorial, run the following commads in yo
 wget https://research.nhgri.nih.gov/manuscripts/Burgess/zebrafish/downloads/NHGRI-1/danRer11/danRer11Tracks/danRer11.CRISPR.bed.gz
 pigz -d danRer11.CRISPR.bed.gz
 wget http://ftp.ebi.ac.uk/ensemblorg/pub/current_fasta/danio_rerio/dna/Danio_rerio.GRCz11.dna.primary_assembly.fa.gz
-pigz -d Danio_rerio.GRCz11.dna.toplevel.fa.gz
+pigz -d Danio_rerio.GRCz11.dna.primary_assembly.fa.gz
 ```
 This can take a few minutes.  
 
