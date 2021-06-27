@@ -16,7 +16,6 @@ wget http://ftp.ensembl.org/pub/release-104/fasta/danio_rerio/dna/Danio_rerio.GR
 pigz -d Danio_rerio.GRCz11.dna.toplevel.fa.gz
 ```
 This can take a few minutes.  
-**Alternatively:**
 
 ## A first look at the data
 Let's start by taking a quick look at the files we have. One way to do it is using the `less` command, e.g.: `less danRer11.CRISPR.bed` and `less Danio_rerio.GRCz11.dna.toplevel.fa`. Use up/down arrows to browse through the files. `less` is a very good pager for large files, since it doesn't try to load the entire file to RAM, so even huge files will not choke the machine.  
